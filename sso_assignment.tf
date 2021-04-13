@@ -1,41 +1,15 @@
 locals {
-  group   = "GROUP"
-  user    = "USER"
-  account = "AWS_ACCOUNT"
-}
-
-data "aws_identitystore_group" "groups" {
-  for_each = toset(flatten([
+  groups = toset(flatten([
     for account, v in var.assignments : [
       for group_name in keys(v.groups) : group_name
     ]
   ]))
-
-  identity_store_id = var.identity_store_id
-
-  filter {
-    attribute_path  = "DisplayName"
-    attribute_value = each.value
-  }
-}
-
-data "aws_identitystore_user" "users" {
-  for_each = toset(flatten([
+  users = toset(flatten([
     for account, v in var.assignments : [
       for user_name in keys(v.users) : user_name
     ]
   ]))
-
-  identity_store_id = var.identity_store_id
-
-  filter {
-    attribute_path  = "UserName"
-    attribute_value = each.value
-  }
-}
-
-data "aws_ssoadmin_permission_set" "permission_sets" {
-  for_each = toset(flatten([
+  permission_sets = toset(flatten([
     for account, v in var.assignments : flatten([
       for group_name, permission_sets in v.groups : [
         for permission_set_name in permission_sets : permission_set_name
@@ -43,12 +17,7 @@ data "aws_ssoadmin_permission_set" "permission_sets" {
     ])
   ]))
 
-  instance_arn = var.instance_arn
-  name         = each.value
-}
-
-resource "aws_ssoadmin_account_assignment" "groups" {
-  for_each = merge([
+  group_assignments = merge([
     for account, v in var.assignments : merge([
       for group_name, permission_sets in v.groups : {
         for permission_set_name in permission_sets : "${account}.${group_name}.${permission_set_name}" => {
@@ -59,7 +28,49 @@ resource "aws_ssoadmin_account_assignment" "groups" {
       }
     ]...)
   ]...)
+  user_assignments = merge([
+    for account, v in var.assignments : merge([
+      for user_name, permission_sets in v.users : {
+        for permission_set_name in permission_sets : "${account}.${user_name}.${permission_set_name}" => {
+          account             = account
+          user_name           = user_name
+          permission_set_name = permission_set_name
+        }
+      }
+    ]...)
+  ]...)
+}
 
+data "aws_identitystore_group" "groups" {
+  for_each = local.groups
+
+  identity_store_id = var.identity_store_id
+
+  filter {
+    attribute_path  = "DisplayName"
+    attribute_value = each.value
+  }
+}
+
+data "aws_identitystore_user" "users" {
+  for_each = local.users
+
+  identity_store_id = var.identity_store_id
+
+  filter {
+    attribute_path  = "UserName"
+    attribute_value = each.value
+  }
+}
+
+data "aws_ssoadmin_permission_set" "permission_sets" {
+  for_each     = local.permission_sets
+  instance_arn = var.instance_arn
+  name         = each.value
+}
+
+resource "aws_ssoadmin_account_assignment" "groups" {
+  for_each           = local.group_assignments
   instance_arn       = var.instance_arn
   permission_set_arn = data.aws_ssoadmin_permission_set.permission_sets[each.value.permission_set_name].arn
 
@@ -71,17 +82,7 @@ resource "aws_ssoadmin_account_assignment" "groups" {
 }
 
 resource "aws_ssoadmin_account_assignment" "users" {
-  for_each = merge([
-    for account, v in var.assignments : merge([
-      for user_name, permission_sets in v.users : {
-        for permission_set_name in permission_sets : "${account}.${user_name}.${permission_set_name}" => {
-          account             = account
-          user_name           = user_name
-          permission_set_name = permission_set_name
-        }
-      }
-    ]...)
-  ]...)
+  for_each = local.user_assignments
 
   instance_arn       = var.instance_arn
   permission_set_arn = data.aws_ssoadmin_permission_set.permission_sets[each.value.permission_set_name].arn
