@@ -1,25 +1,32 @@
 locals {
   groups = toset(flatten([
     for account, v in var.assignments : [
-      for group_name in keys(v.groups) : group_name
+      for group_name in contains(keys(v), "groups") ? keys(v.groups) : [] : group_name
     ]
   ]))
   users = toset(flatten([
     for account, v in var.assignments : [
-      for user_name in keys(v.users) : user_name
+      for user_name in contains(keys(v), "users") ? keys(v.users) : [] : user_name
     ]
   ]))
   permission_sets = toset(flatten([
     for account, v in var.assignments : flatten([
-      for group_name, permission_sets in v.groups : [
-        for permission_set_name in permission_sets : permission_set_name
+      [
+        for group_name, permission_sets in contains(keys(v), "groups") ? v.groups : {} : [
+          for permission_set_name in permission_sets : permission_set_name
+        ]
+      ],
+      [
+        for user_name, permission_sets in contains(keys(v), "users") ? v.users : {} : [
+          for permission_set_name in permission_sets : permission_set_name
+        ]
       ]
     ])
   ]))
 
   group_assignments = merge([
     for account, v in var.assignments : merge([
-      for group_name, permission_sets in v.groups : {
+      for group_name, permission_sets in contains(keys(v), "groups") ? v.groups : {} : {
         for permission_set_name in permission_sets : "${account}.${group_name}.${permission_set_name}" => {
           account             = account
           group_name          = group_name
@@ -30,7 +37,7 @@ locals {
   ]...)
   user_assignments = merge([
     for account, v in var.assignments : merge([
-      for user_name, permission_sets in v.users : {
+      for user_name, permission_sets in contains(keys(v), "users") ? v.users : {} : {
         for permission_set_name in permission_sets : "${account}.${user_name}.${permission_set_name}" => {
           account             = account
           user_name           = user_name
