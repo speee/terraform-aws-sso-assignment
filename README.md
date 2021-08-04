@@ -2,6 +2,70 @@
 
 Terraform module which creates AWS SSO assignments on AWS.
 
+## Usage
+```hcl
+module "account_assignments" {
+  source = "speee/sso_assignments/aws"
+
+  instance_arn      = "arn:aws:sso:::instance/ssoins-9999999999999999"
+  identity_store_id = "d-9999999999"
+
+  organization_accounts = [
+    {
+      arn = "arn:aws:organizations::123456789012:account/o-xxxxxxxxxx/123456789012"
+      email = "account1@example.com"
+      id = "123456789012"
+      name = "account1"
+    },
+    {
+      arn = "arn:aws:organizations::123456789012:account/o-xxxxxxxxxx/234567890123"
+      email = "account2@example.com"
+      id = "234567890123"
+      name = "account2"
+    },
+  ]
+
+  assignments = {
+    "account1" = {
+      "groups" = {
+        "SystemAdministrator" = [
+          "AdministratorAccess",
+        ],
+        "Engineer" = [
+          "PowerUserAccess",
+        ],
+        "Manager" = [
+          "ReadOnlyAccess",
+        ],
+      },
+      "users" = {
+        "alice@example.com" = [
+          "AdministratorAccess",
+        ],
+      },
+    },
+    "account2" = {
+      "users" = {
+        "alice@example.com" = [
+          "AdministratorAccess",
+        ],
+        "bob@example.com" = [
+          "ReadOnlyAccess",
+        ],
+      },
+    },
+  }
+}
+```
+
+## Examples
+- [All account assignments in a single module](https://github.com/speee/terraform-aws-sso-assignment/tree/master/examples/all-in-one)
+- [Account assignments per organization units](https://github.com/speee/terraform-aws-sso-assignment/tree/master/examples/module-per-organizations-unit)
+
+## Notes
+1. This module does not create no resource other than `aws_ssoadmin_account_assignment` resource. Use resources or data sources directly to manage other resources like `aws_ssoadmin_permission_set`.
+
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
@@ -14,7 +78,7 @@ Terraform module which creates AWS SSO assignments on AWS.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.52.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.24.0 |
 
 ## Modules
 
