@@ -17,7 +17,7 @@ $ terraform apply
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.3 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=3.24.0 |
 
 ## Providers
