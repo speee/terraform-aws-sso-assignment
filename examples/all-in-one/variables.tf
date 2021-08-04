@@ -4,5 +4,6 @@ variable "sso_region" {
 }
 
 variable "assignments_all" {
-  type = map(map(map(list(string))))
+  type        = map(map(map(list(string))))
+  description = "All of account assignments."
 }
