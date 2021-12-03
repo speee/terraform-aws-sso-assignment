@@ -5,7 +5,7 @@ Terraform module which creates AWS SSO assignments on AWS.
 ## Usage
 ```hcl
 module "account_assignments" {
-  source = "speee/sso_assignments/aws"
+  source = "speee/sso-assignments/aws"
 
   instance_arn      = "arn:aws:sso:::instance/ssoins-9999999999999999"
   identity_store_id = "d-9999999999"
