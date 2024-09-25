@@ -27,7 +27,7 @@ locals {
   group_assignments = merge([
     for account, v in var.assignments : merge([
       for group_name, permission_sets in contains(keys(v), "groups") ? v.groups : {} : {
-        for permission_set_name in permission_sets : "${account}.${group_name}.${permission_set_name}" => {
+        for permission_set_name in permission_sets : "${account}.${data.aws_identitystore_group.groups[group_name].id}.${permission_set_name}" => {
           account             = account
           group_name          = group_name
           permission_set_name = permission_set_name
@@ -38,7 +38,7 @@ locals {
   user_assignments = merge([
     for account, v in var.assignments : merge([
       for user_name, permission_sets in contains(keys(v), "users") ? v.users : {} : {
-        for permission_set_name in permission_sets : "${account}.${user_name}.${permission_set_name}" => {
+        for permission_set_name in permission_sets : "${account}.${data.aws_identitystore_user.users[user_name].id}.${permission_set_name}" => {
           account             = account
           user_name           = user_name
           permission_set_name = permission_set_name
