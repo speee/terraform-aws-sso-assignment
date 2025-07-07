@@ -53,9 +53,11 @@ data "aws_identitystore_group" "groups" {
 
   identity_store_id = var.identity_store_id
 
-  filter {
-    attribute_path  = "DisplayName"
-    attribute_value = each.value
+  alternate_identifier {
+    unique_attribute {
+      attribute_path  = "DisplayName"
+      attribute_value = each.value
+    }
   }
 }
 
@@ -64,9 +66,11 @@ data "aws_identitystore_user" "users" {
 
   identity_store_id = var.identity_store_id
 
-  filter {
-    attribute_path  = "UserName"
-    attribute_value = each.value
+  alternate_identifier {
+    unique_attribute {
+      attribute_path  = "UserName"
+      attribute_value = each.value
+    }
   }
 }
 
