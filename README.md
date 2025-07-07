@@ -69,16 +69,16 @@ module "account_assignments" {
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name | Version   |
+|------|-----------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.24.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.40.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.24.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.40.0  |
 
 ## Modules
 
